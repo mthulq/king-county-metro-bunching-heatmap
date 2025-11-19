@@ -2,9 +2,10 @@ import requests
 import pandas as pd
 import json
 from json import loads, dumps
+import os
 
 url = "https://s3.amazonaws.com/kcm-alerts-realtime-prod/vehiclepositions_enhanced.json"
-routes = pd.read_csv("routes.txt")
+routes = pd.read_csv("assets/routes.txt")
 routes["route_id"] = routes["route_id"].astype(str)
 
 
@@ -23,8 +24,8 @@ def fetch_bus_positions():
     )
 
 
-stop_times = pd.read_csv("stop_times.txt")
-trips = pd.read_csv("trips.txt")
+stop_times = pd.read_csv("assets/stop_times.txt")
+trips = pd.read_csv("assets/trips.txt")
 trip_schedules = stop_times.merge(trips[["trip_id", "route_id"]], on="trip_id")
 
 
@@ -76,6 +77,15 @@ def route_info_to_json(route_info_df):
     )
     return dumps(loads(result))
 
-
 route_median_headways = calculate_route_median_headways()
 route_info_json = route_info_to_json(routes)
+
+os.makedirs('assets', exist_ok=True)
+
+with open('assets/route_median_headways.json', 'w') as f:
+    json.dump(route_median_headways, f, indent=2)
+
+with open('assets/route_info.json', 'w') as f:
+    f.write(route_info_json)
+
+print("Processed data saved to assets folder!")
