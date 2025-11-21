@@ -10,8 +10,6 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
 
-    <!-- PapaParse for robust CSV parsing (handles commas inside quotes) -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
     <style>
         body {
@@ -181,63 +179,19 @@
         let allBunchingGeoJSON = null;
         const selectedRouteIds = new Set();
 
-        async function loadBunchingCSV() {
-            // Fetch the CSV directly from the primary path
-            let csvText = null;
+        async function loadBunchingJSON() {
             try {
-                const response = await fetch('assets/bunching_events.csv');
+                const response = await fetch('assets/bunching_events.json');
                 if (!response.ok) {
-                    console.error('Could not load bunching_events.csv:', response.statusText);
-                    alert('Error: could not load bunching_events CSV. Make sure it is in the repo (e.g., assets/bunching_events.csv).');
+                    console.error('Failed to load JSON:', response.statusText);
                     return { type: 'FeatureCollection', features: [] };
                 }
-                csvText = await response.text();
+                const geojson = await response.json();
+                return geojson;
             } catch (err) {
-                console.error('Could not load bunching_events.csv:', err);
-                alert('Error: could not load bunching_events CSV. Make sure it is in the repo (e.g., assets/bunching_events.csv).');
+                console.error('Error loading JSON:', err);
                 return { type: 'FeatureCollection', features: [] };
             }
-
-            const parsed = Papa.parse(csvText, {
-                header: true,
-                dynamicTyping: true,
-                skipEmptyLines: true
-            });
-
-            const rows = parsed.data;
-
-            const features = rows
-                .map(row => {
-                    const lon = Number(row.longitude);
-                    const lat = Number(row.latitude);
-                    if (!Number.isFinite(lon) || !Number.isFinite(lat)) return null;
-
-                    const severity = Number(row.bunching_severity ?? 0);
-
-                    return {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lon, lat]
-                        },
-                        properties: {
-                            route_id: String(row.route_id),
-                            route_short_name: String(row.route_short_name ?? ''),
-                            route_desc: row.route_desc ?? '',
-                            bunching_severity: severity,
-                            estimated_headway: row.estimated_headway !== undefined && row.estimated_headway !== null
-                                ? Number(row.estimated_headway)
-                                : null,
-                            timestamp: row.timestamp ?? ''
-                        }
-                    };
-                })
-                .filter(f => f !== null);
-
-            return {
-                type: 'FeatureCollection',
-                features
-            };
         }
 
         function addLegend() {
@@ -463,7 +417,7 @@
         }
 
         async function init() {
-            const geojson = await loadBunchingCSV();
+            const geojson = await loadBunchingJSON();
             allBunchingGeoJSON = geojson;
 
             map.on('load', () => {
