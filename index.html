@@ -9,7 +9,7 @@
     <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
-
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
 
     <style>
         body {
@@ -177,6 +177,7 @@
 
         // Globals so we can re-filter without refetching
         let allBunchingGeoJSON = null;
+        let severity2 = null;
         const selectedRouteIds = new Set();
 
         async function loadBunchingJSON() {
@@ -187,11 +188,26 @@
                     return { type: 'FeatureCollection', features: [] };
                 }
                 const geojson = await response.json();
-                return geojson;
+                const filtered = {
+                    type: 'FeatureCollection',
+                    features: geojson.features.filter(f => Number(f.properties.bunching_severity) === 2)
+                };
+                return filtered;
             } catch (err) {
                 console.error('Error loading JSON:', err);
                 return { type: 'FeatureCollection', features: [] };
             }
+        }
+
+        function computeDensityGrid(points) {
+            const bbox = [-122.459,47.495,-122.224,47.734];
+            const cellSize = 0.002;
+            const grid = turf.pointGrid(bbox, cellSize, { units: 'degrees' });
+            grid.features.forEach(cell => {
+                const count = points.features.filter(p => turf.booleanPointInPolygon(p, turf.buffer(cell, 0.001, {units:'degrees'}))).length;
+                cell.properties.density = count;
+            });
+            return grid;
         }
 
         function addLegend() {
@@ -199,9 +215,7 @@
             legend.innerHTML = '';
 
             const items = [
-                { color: '#d73027', label: 'Bunched (severity 2)' },
-                { color: '#fc8d59', label: 'At risk (severity 1)' },
-                { color: '#91cf60', label: 'Well spaced / other (severity 0)' }
+                { color: '#d73027', label: 'Bunched (severity 2)' }
             ];
 
             items.forEach(item => {
@@ -280,14 +294,14 @@
         }
 
         function updateFilteredGeoJSON() {
-            if (!allBunchingGeoJSON) return;
+            if (!severity2) return;
 
-            let filtered = allBunchingGeoJSON;
+            let filtered = severity2;
 
             if (selectedRouteIds.size > 0) {
                 filtered = {
                     type: 'FeatureCollection',
-                    features: allBunchingGeoJSON.features.filter(f =>
+                    features: severity2.features.filter(f =>
                         selectedRouteIds.has(f.properties.route_id)
                     )
                 };
@@ -305,11 +319,33 @@
                 data: geojson
             });
 
+            map.addSource('density', { type:'geojson', data:densityGrid });
+            map.addLayer({
+                id:'density-heat',
+                type:'fill',
+                source:'density',
+                paint:{
+                   'fill-color': [
+                      'interpolate', ['linear'], ['get','density'],
+                      0,'rgba(0,0,0,0)',
+                      5,'rgba(255,165,0,0.4)',
+                      10,'rgba(255,80,0,0.7)',
+                      20,'rgba(255,0,0,1)'
+                   ],
+                   'fill-opacity':0.6
+                }
+            });
+
             // Heatmap layer for overall density
             map.addLayer({
                 id: 'bunching-heat',
                 type: 'heatmap',
                 source: 'bunching',
+                filter: [
+                    "==",
+                    ["to-number", ["get", "bunching_severity"]],
+                    2
+                ],
                 maxzoom: 15,
                 paint: {
                     // Weight points by bunching severity
@@ -325,27 +361,32 @@
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        9, 0.6,
-                        14, 1.4
+                        9, 1.2,
+                        14, 3.0
                     ],
                     'heatmap-color': [
                         'interpolate',
                         ['linear'],
                         ['heatmap-density'],
-                        0, 'rgba(0, 0, 0, 0)',
-                        0.2, 'rgb(102, 194, 165)',
-                        0.4, 'rgb(252, 141, 89)',
-                        0.7, 'rgb(227, 74, 51)',
-                        1, 'rgb(179, 0, 0)'
+                        0, "rgba(0,0,0,0)",
+                        0.6, "rgba(255,140,0,0.7)",
+                        0.8, "rgba(255,69,0,0.85)",
+                        1, "rgba(255,0,0,1)"
                     ],
                     'heatmap-radius': [
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        9, 10,
-                        14, 30
+                        9, 8,
+                        14, 40
                     ],
-                    'heatmap-opacity': 0.9
+                    'heatmap-opacity': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        9, 0.9,
+                        12, 0.0
+                    ]
                 }
             });
 
@@ -360,25 +401,19 @@
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        10, 3,
-                        14, 10
+                        10, 4,
+                        14, 14
                     ],
-                    'circle-color': [
-                        'match',
-                        ['get', 'bunching_severity'],
-                        2, '#d73027',   // bunched
-                        1, '#fc8d59',   // at risk
-                        0, '#91cf60',   // well spaced / other
-                        '#91cf60'
-                    ],
+                    'circle-color': '#d73027',
                     'circle-stroke-color': '#ffffff',
-                    'circle-stroke-width': 0.5,
+                    'circle-stroke-width': 1,
                     'circle-opacity': [
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        10, 0,
-                        11.5, 0.8
+                        10, 0.7,
+                        11, 0.85,
+                        13, 1
                     ]
                 }
             });
@@ -393,9 +428,8 @@
 
                 const props = feature.properties;
                 const severity = Number(props.bunching_severity);
-                let severityLabel = 'Well spaced / other';
-                if (severity === 2) severityLabel = 'Bunched';
-                else if (severity === 1) severityLabel = 'At risk';
+                let severityLabel = 'Bunched';
+                // Since only severity 2 features are loaded, label is fixed
 
                 const headway = props.estimated_headway ? `${Number(props.estimated_headway).toFixed(1)} min` : 'N/A';
 
@@ -419,11 +453,13 @@
         async function init() {
             const geojson = await loadBunchingJSON();
             allBunchingGeoJSON = geojson;
+            severity2 = geojson;
+            const densityGrid = computeDensityGrid(severity2);
 
             map.on('load', () => {
-                addMapLayers(geojson);
+                addMapLayers(severity2);
                 addLegend();
-                buildRouteFilters(geojson);
+                buildRouteFilters(severity2);
                 setupHoverInfo();
             });
         }
