@@ -181,7 +181,7 @@
 
         async function loadBunchingJSON() {
             try {
-                const response = await fetch('assets/bunching_events.json');
+                const response = await fetch('assets/bunching_events.geojson');
                 if (!response.ok) {
                     console.error('Failed to load JSON:', response.statusText);
                     return { type: 'FeatureCollection', features: [] };
