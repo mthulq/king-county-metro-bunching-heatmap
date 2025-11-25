@@ -58,7 +58,3 @@ The main goal is to help **King County Metro planners and analysts** understand 
 - **Frontend:** HTML, CSS, JavaScript, Mapbox GL JS heatmap template (adapted from course materials).  
 - **Backend / Pre‑processing:** Python (pandas, NumPy, possibly GeoPandas) for GTFS processing and CSV/GeoJSON generation.  
 - **Version control & hosting:** GitHub + GitHub Pages.
-
-## AI Use Disclosure
-
-We use ChatGPT only for **coding assistance and debugging**, brainstorming UI ideas, and polishing documentation (including parts of this README). All core design decisions, data processing logic, and interpretation of results are done by the project team.
