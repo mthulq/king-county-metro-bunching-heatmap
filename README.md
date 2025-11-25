@@ -45,7 +45,7 @@ The main goal is to help **King County Metro planners and analysts** understand 
    - Wrote all detected bunching events to `bunching_events.csv`.  
    - Aggregated records to a GeoJSON layer suitable for heatmap rendering in the web app.
 
-## Main Functions (Frontend – Ruiming & Vincent)
+## Main Functions (Frontend)
 
 - Interactive web map showing a **heatmap of bunching intensity** across King County.  
 - Checkboxes / filters to turn individual routes or route groups on and off.  
