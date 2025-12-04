@@ -104,17 +104,6 @@ The webpage layout is optimized for laptop displays and ensures:
 
 We adjusted the heatmap layer styling so that event density remains visible as the user zooms in or out.
 
-### 5. Experimental Features (Future Work)
-
-The frontend includes exploratory work toward:
-
-- **Cluster detection** with Mapbox clustering  
-- **Top‑5 densest hotspot detection**  
-- **Circle overlays** marking high‑density areas  
-- **Zoom‑dependent dynamic density polling**
-
-These features laid groundwork for more advanced spatial analysis but require additional spatial indexing beyond what Mapbox’s default clustering offers.
-
 ---
 
 ## Technology Stack
