@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>King County Metro Bus Bunching Heatmap</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
+
+    <style>
+        /* Navigation bar styling */
+        .topnav {
+            background-color: #333;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .topnav a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #c1c1c1c7;
+            color: white;
+        }
+
+        /* Style the main title/home link differently */
+        .topnav a:first-child {
+            background-color: #b5b5b5;
+            color: white;
+        }
+
+        .topnav a:first-child:hover {
+            background-color: #c1c1c1c7;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h2,
+        h3 {
+            margin: 10px;
+            font-size: 18px;
+        }
+
+        h3 {
+            font-size: 16px;
+        }
+
+        p {
+            margin: 10px;
+        }
+
+          /* ...existing styles... */
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Background image container */
+        .background-section {
+            background-image: url('https://image-static.collegedunia.com/public/college_data/images/studyabroad/appImage/college_2096_29-18:12_University_of_Washington_Seattle.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-top: 60px;
+        }
+
+        /* Grey text box overlay */
+        .description-box {
+            background-color: rgba(128, 128, 128, 0.85);
+            color: white;
+            padding: 40px;
+            margin: 40px auto;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .description-box h2 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        .description-box p {
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Hide hamburger menu by default (desktop) */
+        .topnav a.icon {
+            display: none;
+        }
+
+        /* Show hamburger menu on mobile screens */
+        @media screen and (max-width: 600px) {
+            .topnav a.icon {
+                display: block;
+            }
+            
+            /* Optional: hide nav links on mobile by default */
+            .topnav a:not(.icon) {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <div class="topnav" id="myTopnav">
+        <!-- Active link pointing to the index.html page -->
+        <a href="/">King County Metro Bunching</a>
+
+        <!-- Links to other sections -->
+        <a href="/pages/description.html">Project Description</a>
+        <a href="/pages/team.html">Team</a>
+        <a href="/pages/sources.html">Data Sources</a>
+
+        <!-- "Hamburger menu" / "Bar icon" to toggle the navigation links on smaller screens -->
+        <a href="javascript:void(0);" class="icon">
+            <i class="fa fa-bars"></i>
+        </a>
+</div>
+
+    <div class="background-section">
+        <div class="description-box">
+            <h1>Team</h1>
+            
+            <h3>Mo Thulqarnain</h3>
+            <p>The goal of this tool is to support Metro planners, analysts, and the public by providing a clear spatial visualization of where bus bunching occurs most frequently. Through large‑scale data processing and intuitive design, the heatmap aims to:</p>
+
+            <h3>Ruiming Ren</h3>
+            <p>The goal of this tool is to support Metro planners, analysts, and the public by providing a clear spatial visualization of where bus bunching occurs most frequently. Through large‑scale data processing and intuitive design, the heatmap aims to:</p>
+
+            <h3>Nimrod Tsegay</h3>
+            <p>The goal of this tool is to support Metro planners, analysts, and the public by providing a clear spatial visualization of where bus bunching occurs most frequently. Through large‑scale data processing and intuitive design, the heatmap aims to:</p>
+
+            <h3>Vincent Tanaka</h3>
+            <p>The goal of this tool is to support Metro planners, analysts, and the public by providing a clear spatial visualization of where bus bunching occurs most frequently. Through large‑scale data processing and intuitive design, the heatmap aims to:</p>
+        </div>
+    </div>
+
+ 
+    </script>
+</body>
+
+</html>
