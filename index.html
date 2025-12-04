@@ -69,7 +69,6 @@
             margin: 10px;
         }
 
-        /* Full screen map */
         #map {
             position: absolute;
             top: 0;
@@ -80,7 +79,6 @@
             height: 100%;
         }
 
-        /* Generic overlay styling */
         .map-overlay {
             position: absolute;
             background: rgba(255, 255, 255, 0.9);
@@ -91,18 +89,20 @@
             max-width: 280px;
         }
 
-        /* Info box on the top-left */
         #info-box {
             top: 47px;
+            top: 47px;
             left: 0;
+            margin: 6px;
             margin: 6px;
             padding-bottom: 10px;
         }
 
-        /* Controls + legend on the top-right */
         #controls {
             top: 47px;
+            top: 47px;
             right: 0;
+            margin: 6px;
             margin: 6px;
             padding-bottom: 10px;
             max-height: 80%;
@@ -205,7 +205,6 @@
     
     <div id="map"></div>
 
-    <!-- Info overlay: title + hover details -->
     <div class="map-overlay" id="info-box">
         <h2>King County Metro Bus Bunching</h2>
         <div id="feature-info">
@@ -213,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Controls overlay: route filters + legend -->
     <div class="map-overlay" id="controls">
         <h3>Route Filters</h3>
         <div class="btn-row">
@@ -227,19 +225,17 @@
     </div>
 
     <script>
-        // Use your own Mapbox access token
         mapboxgl.accessToken = 'pk.eyJ1IjoicnVpbWlyIiwiYSI6ImNtaGNzbDl0dTB1N2Uya29kOHlhOGtjZ2QifQ.gXFnHS11V3cqG3FrsqIlSA';
 
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/dark-v10',
-            center: [-122.33, 47.60], // Seattle / King County
+            center: [-122.33, 47.60],
             zoom: 10.5
         });
 
         map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
 
-        // Globals so we can re-filter without refetching
         let allBunchingGeoJSON = null;
         let severity2 = null;
         const selectedRouteIds = new Set();
@@ -293,7 +289,6 @@
             const filtersDiv = document.getElementById('route-filters');
             filtersDiv.innerHTML = '';
 
-            // Collect unique routes
             const routeMap = new Map();
             geojson.features.forEach(f => {
                 const props = f.properties;
@@ -328,7 +323,6 @@
                 filtersDiv.appendChild(label);
             });
 
-            // Buttons: show all / clear all
             document.getElementById('show-all').onclick = () => {
                 selectedRouteIds.clear();
                 routes.forEach(r => selectedRouteIds.add(r.id));
@@ -389,26 +383,26 @@
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        9, 0.3,
-                        14, 1.5
+                        9, 0.1,
+                        14, 0.5
                     ],
                     'heatmap-color': [
                         'interpolate',
                         ['linear'],
                         ['heatmap-density'],
                         0, "rgba(0,0,0,0)",
-                        0.4, "rgba(0,0,0,0)",
-                        0.5, "rgba(255,165,0,0.5)",
-                        0.7, "rgba(255,69,0,0.75)",
-                        0.85, "rgba(255,0,0,0.9)",
+                        0.7, "rgba(0,0,0,0)",
+                        0.8, "rgba(255,165,0,0.6)",
+                        0.9, "rgba(255,69,0,0.8)",
+                        0.95, "rgba(255,0,0,0.9)",
                         1, "rgba(178,24,43,1)"
                     ],
                     'heatmap-radius': [
                         'interpolate',
                         ['linear'],
                         ['zoom'],
-                        9, 2,
-                        14, 10
+                        9, 1,
+                        14, 6
                     ],
                     'heatmap-opacity': [
                         'interpolate',
@@ -455,7 +449,6 @@
                 const props = feature.properties;
                 const severity = Number(props.bunching_severity);
                 let severityLabel = 'Bunched';
-                // Since only severity 2 features are loaded, label is fixed
 
                 const headway = props.estimated_headway ? `${Number(props.estimated_headway).toFixed(1)} min` : 'N/A';
 
